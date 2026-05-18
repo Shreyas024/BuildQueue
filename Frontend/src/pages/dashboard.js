@@ -27,8 +27,8 @@ export async function renderDashboard() {
   return `
   <div class="fade-in">
     <div class="page-header">
-      <h1 class="page-title">Dashboard</h1>
-      <p class="page-desc">Semester overview — all three modules at a glance</p>
+      <h1 class="page-title">👋 Welcome to CampusCore</h1>
+      <p class="page-desc">Here's your semester overview — everything's running smoothly</p>
     </div>
 
     <!-- Stat Cards -->
@@ -136,11 +136,11 @@ export async function renderDashboard() {
         <button class="btn btn-sm btn-secondary" id="btn-clear-log">Clear</button>
       </div>
       <div class="log-console" id="dashboard-log">
-        <div class="log-line"><span class="log-time">09:00:01</span><span class="log-tag info">SYS</span><span class="log-msg">CampusCore backend connected successfully</span></div>
-        <div class="log-line"><span class="log-time">09:00:02</span><span class="log-tag success">M1</span><span class="log-msg">Room allocation API synced — ${roomsCount} rooms, ${coursesCount} courses</span></div>
-        <div class="log-line"><span class="log-time">09:00:03</span><span class="log-tag success">M2</span><span class="log-msg">GPU cluster API synced — ${gpuBudget}GB budget, semaphore(${maxUsers})</span></div>
-        <div class="log-line"><span class="log-time">09:00:04</span><span class="log-tag success">M3</span><span class="log-msg">Service boot API synced — ${svcCount} services in dependency graph</span></div>
-        <div class="log-line"><span class="log-time">09:00:05</span><span class="log-tag info">SYS</span><span class="log-msg">All modules ready. Awaiting operator commands.</span></div>
+        <div class="log-line"><span class="log-time">09:00:01</span><span class="log-tag info">SYS</span><span class="log-msg">Hey! Backend connected — everything looks good ✨</span></div>
+        <div class="log-line"><span class="log-time">09:00:02</span><span class="log-tag success">M1</span><span class="log-msg">Room scheduler is ready — ${roomsCount} rooms and ${coursesCount} courses loaded</span></div>
+        <div class="log-line"><span class="log-time">09:00:03</span><span class="log-tag success">M2</span><span class="log-msg">GPU cluster online — ${gpuBudget}GB budget, up to ${maxUsers} users at once</span></div>
+        <div class="log-line"><span class="log-time">09:00:04</span><span class="log-tag success">M3</span><span class="log-msg">Service graph loaded — ${svcCount} services ready to boot in order</span></div>
+        <div class="log-line"><span class="log-time">09:00:05</span><span class="log-tag info">SYS</span><span class="log-msg">All set! Click any module to explore 🚀</span></div>
       </div>
     </div>
   </div>`;
