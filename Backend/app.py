@@ -8,7 +8,7 @@ from modules.service_boot import topological_sort
 from data.sample_data import (
     courses, rooms, 
     jobs, GPU_MEMORY, MAX_CONCURRENT_GPU_USERS,
-    services, services_cyclic
+    services, services_cyclic, service_boot_times
 )
 
 app = Flask(__name__)
@@ -67,7 +67,7 @@ def gpu_api():
 def services_api():
     try:
         # topological_sort(services)
-        service_result = topological_sort(services)
+        service_result = topological_sort(services, service_boot_times)
         return jsonify({
             "success": True,
             "module": "Service Boot Sequencer",
@@ -107,7 +107,7 @@ def run_all():
         total_memory_used = sum(job.get('memory', job.get('memory_gb', 0)) for job in selected)
         
         # SERVICE MODULE
-        service_result = topological_sort(services)
+        service_result = topological_sort(services, service_boot_times)
         
         return jsonify({
             "success": True,
