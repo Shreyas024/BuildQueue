@@ -19,14 +19,26 @@ export async function renderAnalytics() {
   const coursesCount = summary.total_courses;
   const roomsCount = payload.rooms.room_usage ? Object.keys(payload.rooms.room_usage).length : 0;
   
-  // Calculate average wait time from GPU logs
+  // Calculate average wait time from GPU execution logs (WAITING → STARTED gap per job)
   let totalWaitMs = 0;
-  if (payload.gpu.execution && payload.gpu.execution.timeline) {
-      for (const t of payload.gpu.execution.timeline) {
-          totalWaitMs += t.start_ms;
+  let waitCount = 0;
+  let totalSimTimeMs = 0;
+  if (payload.gpu.execution && payload.gpu.execution.execution_logs) {
+      const waitTimes = {};  // job -> WAITING timestamp
+      for (const log of payload.gpu.execution.execution_logs) {
+          if (log.event === 'WAITING') waitTimes[log.job] = log.time_ms;
+          if (log.event === 'STARTED' && waitTimes[log.job] !== undefined) {
+              totalWaitMs += (log.time_ms - waitTimes[log.job]);
+              waitCount++;
+          }
       }
   }
-  const avgWait = gpuSelected > 0 ? (totalWaitMs / gpuSelected / 1000).toFixed(1) : 0; // seconds
+  if (payload.gpu.execution && payload.gpu.execution.stats) {
+      totalSimTimeMs = payload.gpu.execution.stats.total_time_ms || 0;
+  }
+  const avgWaitMs = waitCount > 0 ? (totalWaitMs / waitCount) : 0;
+  const avgWait = avgWaitMs < 1 ? '< 1' : avgWaitMs.toFixed(1);
+  const avgWaitUnit = 'ms';
 
   const svcSuccess = payload.services.success;
   const svcRate = svcSuccess ? 100 : 0;
@@ -61,7 +73,7 @@ export async function renderAnalytics() {
         <div class="stat-icon purple">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
         </div>
-        <div class="stat-value">~${avgWait}s</div>
+        <div class="stat-value">${avgWait} ${avgWaitUnit}</div>
         <div class="stat-label">Avg GPU Wait Time</div>
       </div>
       <div class="stat-card cyan slide-up" style="animation-delay:0.1s">
@@ -131,7 +143,7 @@ export async function renderAnalytics() {
             <tr><td>Room Allocation</td><td>Utilisation %</td><td>${roomUtil}%</td><td><span class="tag ${roomUtil > 60 ? 'tag-green' : 'tag-amber'}">${roomUtil > 60 ? 'Good' : 'Low'}</span></td></tr>
             <tr><td>GPU Cluster</td><td>Jobs Submitted</td><td>${gpuTotalJobs}</td><td><span class="tag tag-green">OK</span></td></tr>
             <tr><td>GPU Cluster</td><td>Jobs Selected (DP)</td><td>${gpuSelected}</td><td><span class="tag tag-green">Optimal</span></td></tr>
-            <tr><td>GPU Cluster</td><td>Avg Wait Time</td><td>~${avgWait} s</td><td><span class="tag ${avgWait < 2 ? 'tag-green' : 'tag-amber'}">${avgWait < 2 ? 'Good' : 'High'}</span></td></tr>
+            <tr><td>GPU Cluster</td><td>Avg Wait Time</td><td>${avgWait} ${avgWaitUnit}</td><td><span class="tag ${avgWaitMs < 100 ? 'tag-green' : 'tag-amber'}">${avgWaitMs < 100 ? 'Good' : 'High'}</span></td></tr>
             <tr><td>Service Boot</td><td>Total Services</td><td>${totalServices}</td><td><span class="tag tag-green">OK</span></td></tr>
             <tr><td>Service Boot</td><td>Boot Success Rate</td><td>${svcRate}%</td><td><span class="tag tag-green">All Booted</span></td></tr>
             <tr><td>Service Boot</td><td>Cycle Detection</td><td>No cycles</td><td><span class="tag tag-green">Clean</span></td></tr>
